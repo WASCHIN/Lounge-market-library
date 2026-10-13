@@ -1,0 +1,623 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lounge Market Library</title><meta name="description" content="Market research library for Lounge at the Edge of the Universe: cafes of Bhubaneswar, side by side.">
+<meta name="theme-color" content="#0d0a14"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='14' fill='%23ff8fcf'/%3E%3Cellipse cx='32' cy='32' rx='29' ry='9' fill='none' stroke='%23b89cff' stroke-width='4' transform='rotate(-20 32 32)'/%3E%3C/svg%3E">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head><body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: field guide. Sticky cafe rail on top; each cafe is one long vertical dossier; Compare is the side-by-side summary. Dark only, nebula night. */
+:root{
+  --void:#0d0a14; --deep:#15101f; --panel:#1c1529; --line:#2e2440; --line2:#3c2f54;
+  --ink:#ece6f5; --mute:#a497b8; --faint:#76698c;
+  --pink:#ff8fcf; --violet:#b89cff; --cyan:#7fe3e0; --amber:#ffc978; --red:#ff8a8a; --green:#9ee6a8;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--void);color:var(--ink)}
+body{font-family:var(--body);font-size:15px;line-height:1.55;min-height:100%;
+  background:radial-gradient(60rem 30rem at 85% -10%,rgba(184,156,255,.10),transparent 60%),radial-gradient(40rem 25rem at -10% 10%,rgba(255,143,207,.07),transparent 60%),var(--void)}
+a{color:var(--cyan)}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:26px 80px}
+header.top{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.eyebrow{font:600 11px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+h1{font:800 clamp(26px,4.4vw,42px)/1.05 var(--display);margin:8px 0 6px;letter-spacing:-.01em}
+.mission{color:var(--mute);margin:0;max-width:56ch}
+.mission em{color:var(--pink);font-style:normal}
+.sync{font:400 12px var(--mono);color:var(--faint)} .sync b{color:var(--cyan);font-weight:600}
+
+nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(13,10,20,.9);backdrop-filter:blur(10px);
+  border-block:1px solid var(--line);margin-inline:-20px;padding:10px 20px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+nav.rail a{flex:0 0 auto;text-decoration:none;color:var(--mute);font:500 13.5px var(--body);padding:7px 13px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+nav.rail a.cmp{color:var(--pink);border-color:rgba(255,143,207,.4)}
+nav.rail a[aria-current="page"]{background:var(--ink);color:var(--void);border-color:var(--ink)}
+nav.rail a:hover:not([aria-current="page"]){border-color:var(--line2);color:var(--ink)}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+section.block{margin-top:44px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sec-h .n{font:600 11px var(--mono);color:var(--faint);letter-spacing:.1em}
+h2{font:600 21px/1.2 var(--display);margin:0;text-wrap:balance}
+.sub{color:var(--mute);margin:0 0 18px;max-width:70ch}
+.card{background:var(--deep);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+.tag{display:inline-block;font:600 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:6px;background:var(--panel);color:var(--mute)}
+.note{font:400 12px var(--mono);color:var(--faint);margin-top:12px}
+.quote{border-left:2px solid var(--pink);padding-left:12px;font-style:italic}
+
+/* Hero */
+.hero{padding-top:28px}
+.hero h2.name{font:800 clamp(30px,5vw,48px)/1 var(--display);margin:6px 0 10px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:480px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--panel);border-radius:12px;padding:12px 14px}
+.tile .k{font:500 12px var(--body);color:var(--mute)}
+.tile .v{font:600 22px var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .v small{font-size:12px;color:var(--faint);font-weight:400}
+.stars{color:var(--amber)}
+
+dl.read{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 22px;margin:0}
+@media (max-width:720px){dl.read{grid-template-columns:1fr}}
+dl.read dt{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--violet)}
+dl.read dt.good{color:var(--green)} dl.read dt.bad{color:var(--red)}
+dl.read dd{margin:4px 0 0}
+
+/* Reviews */
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(0,190px) 1fr 44px;gap:10px;align-items:center;font-size:14px}
+.bar .t{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .tr{height:10px;background:var(--panel);border-radius:5px;overflow:hidden}
+.bar .fl{height:100%;background:linear-gradient(90deg,var(--violet),var(--pink));border-radius:5px}
+.bar .c{font:600 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.ev{display:grid;gap:12px}
+.ev .card{padding:16px 18px}
+.ev h4{margin:0 0 6px;font:600 15px var(--body);color:var(--ink)}
+.ev p{margin:0;color:var(--mute)}
+
+/* Lenses */
+.lens h3{font:600 14px var(--display);margin:0 0 8px;color:var(--cyan)}
+.lens p{margin:0}
+.lens .q{font:500 12px var(--mono);color:var(--faint);margin-bottom:8px}
+.fac{display:grid;gap:10px;margin-top:8px}
+.frow{display:grid;grid-template-columns:minmax(0,200px) 1fr;gap:12px;align-items:center;font-size:13.5px}
+.ftrack{position:relative;height:22px;background:var(--panel);border-radius:6px}
+.ftrack .mk{position:absolute;top:5px;width:12px;height:12px;border-radius:50%;transform:translateX(-50%)}
+.ftrack .mk.m{background:transparent;border:2px solid var(--faint)}
+.ftrack .mk.c{background:var(--violet)}
+.ftrack .mk.l{background:var(--pink);width:10px;height:10px;top:6px;box-shadow:0 0 0 2px var(--void)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:var(--mute);margin-top:10px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+
+/* Price bands */
+.bands{display:grid;gap:12px}
+.band{display:grid;grid-template-columns:170px 1fr 160px;gap:14px;align-items:center}
+@media (max-width:640px){.band{grid-template-columns:1fr}.band .nums{text-align:left!important}}
+.band .bn{font-weight:600}.band .bn small{display:block;color:var(--faint);font:400 12px var(--mono)}
+.track{position:relative;height:24px;background:var(--panel);border-radius:6px}
+.range{position:absolute;top:7px;height:10px;border-radius:5px;background:linear-gradient(90deg,rgba(184,156,255,.45),rgba(255,143,207,.8))}
+.avg{position:absolute;top:2px;width:3px;height:20px;border-radius:2px;background:var(--ink)}
+.band .nums{font:400 13px var(--mono);font-variant-numeric:tabular-nums;color:var(--mute);text-align:right}.band .nums b{color:var(--ink)}
+
+/* Menu */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center}
+.toolbar input{flex:1 1 240px;min-width:0;background:var(--deep);border:1px solid var(--line);color:var(--ink);font:400 14px var(--body);padding:9px 12px;border-radius:8px}
+.count{font:400 12px var(--mono);color:var(--faint)}
+details.grp{background:var(--deep);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+details.grp summary{cursor:pointer;list-style:none;padding:13px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+details.grp summary::-webkit-details-marker{display:none}
+details.grp summary b{font:600 15px var(--body)}
+details.grp summary span{font:400 12px var(--mono);color:var(--faint)}
+details.grp[open] summary{border-bottom:1px solid var(--line)}
+.items{display:grid}
+.it{display:grid;grid-template-columns:1fr auto;gap:4px 14px;padding:11px 16px;border-bottom:1px solid var(--line)}
+.it:last-child{border-bottom:0}
+.it .nm{font-weight:600}
+.it .cp{color:var(--mute);font-size:13px;grid-column:1}
+.it .pr{font:600 14px var(--mono);font-variant-numeric:tabular-nums;text-align:right;grid-row:1}
+.it .chips{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.job{display:inline-block;font:600 10.5px var(--mono);padding:2px 7px;border-radius:999px;border:1px solid currentColor}
+.job.Comfort{color:var(--pink)}.job.Discovery{color:var(--violet)}.job.Fuel{color:var(--cyan)}.job.Treat{color:var(--amber)}
+.mini{font:400 11px var(--mono);color:var(--faint);padding:2px 0}
+
+/* Insights */
+.ins{display:grid;gap:12px}
+.ins .card{display:grid;gap:8px;padding:16px 18px}
+.ins .imp{color:var(--mute)} .ins .imp b{color:var(--cyan);font-weight:600}
+
+/* Ratings */
+.ratings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.ratings{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rate{background:var(--panel);border-radius:12px;padding:12px 14px}
+.rate span{display:block;color:var(--mute);font-size:13px;margin-bottom:8px}
+.dots{display:flex;gap:5px}
+.dots button{width:22px;height:22px;border-radius:50%;border:1px solid var(--line2);background:transparent;cursor:pointer;padding:0}
+.dots button.on{background:var(--pink);border-color:var(--pink)}
+.dots button:disabled{cursor:default;opacity:.7}
+
+/* Compare */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--deep)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
+th{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);background:var(--panel);white-space:nowrap;cursor:pointer;user-select:none}
+th[data-dir]::after{content:attr(data-dir);color:var(--pink);margin-left:5px}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td a{color:var(--ink);font-weight:600;text-decoration:none;border-bottom:1px dotted var(--faint)}
+.score{min-width:900px}
+.heat td{text-align:center;font:600 13px var(--mono);padding:8px 6px;border-left:1px solid var(--line)}
+.heat td:first-child{text-align:left;font:500 13px var(--body);border-left:0;white-space:nowrap}
+.heat th{text-align:center;writing-mode:vertical-rl;transform:rotate(180deg);height:130px;padding:10px 6px;cursor:default;border-left:1px solid var(--line)}
+.heat th:first-child{writing-mode:horizontal-tb;transform:none;height:auto;text-align:left;vertical-align:bottom}
+.heat .lc{outline:2px solid var(--pink);outline-offset:-2px}
+.claims{display:grid;gap:14px}
+.claim h3{font:600 17px/1.3 var(--display);margin:0 0 6px}
+.claim .d{color:var(--mute);margin:0 0 12px}
+.proof{display:grid;gap:8px;margin-bottom:12px}
+.pf{display:grid;grid-template-columns:150px 1fr;gap:12px;font-size:14px;padding:10px 12px;background:var(--panel);border-radius:10px}
+@media (max-width:560px){.pf{grid-template-columns:1fr;gap:2px}}
+.pf a{font-weight:600;text-decoration:none;color:var(--ink)}
+.pf a::after{content:" →";color:var(--pink)}
+.claim .lo{border-top:1px solid var(--line);padding-top:10px;color:var(--ink)}
+.claim .lo b{color:var(--pink);font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-right:6px}
+.pos{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.pos .card{padding:16px}
+.pos h4{margin:0 0 4px;font:600 15px var(--display)}
+.pos .p{color:var(--pink);margin:0 0 8px;font-weight:500}
+.pos .x{color:var(--mute);font-size:13.5px;margin:0}
+.gap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:720px){.gap{grid-template-columns:1fr}}
+.gap ul{margin:8px 0 0;padding-left:18px}.gap li{margin:4px 0}
+details.f{background:var(--deep);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+details.f summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;justify-content:space-between;gap:10px}
+details.f summary::-webkit-details-marker{display:none}
+details.f summary b{font:600 15px var(--display)} details.f summary span{font:400 12px var(--mono);color:var(--faint);text-align:right}
+details.f .fb{padding:0 16px 16px;display:grid;gap:10px}
+details.f .fb p{margin:0} details.f .fb .q{color:var(--pink)}
+.webs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.webs{grid-template-columns:1fr}}
+a.web{display:grid;gap:8px;text-decoration:none;color:inherit;padding:16px 18px}
+a.web:hover{border-color:var(--line2)}
+.web .wh{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.web .wh b{font:600 15px var(--display)} .web .wh span{font:400 12px var(--mono);color:var(--faint)}
+.web p{margin:0;color:var(--mute)} .web .go{font:600 12px var(--mono);color:var(--cyan)}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.ph{position:relative;border-radius:12px;overflow:hidden;background:var(--panel);aspect-ratio:4/3;max-width:100%}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.ph .del{position:absolute;top:8px;right:8px;background:rgba(13,10,20,.8);color:var(--ink);border:1px solid var(--line2);border-radius:8px;font:600 11px var(--mono);padding:5px 8px;cursor:pointer}
+.ph .del.sure{background:var(--red);color:#0d0a14;border-color:var(--red)}
+.addph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px dashed var(--line2);border-radius:12px;aspect-ratio:4/3;color:var(--mute);cursor:pointer;text-align:center;padding:12px;font-size:14px}
+.addph:hover{border-color:var(--pink);color:var(--pink)}
+.addph b{font:600 22px var(--display)}
+.plinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.plinks a{font:600 12.5px var(--body);text-decoration:none;color:var(--cyan);border:1px solid var(--line2);padding:7px 12px;border-radius:999px}
+.plinks a:hover{border-color:var(--cyan)}
+.phempty{border:1px dashed var(--line);border-radius:12px;padding:22px;color:var(--mute);text-align:center;grid-column:1/-1}
+.lb{position:fixed;inset:0;z-index:20;background:rgba(5,3,9,.92);display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+.lb img{max-width:100%;max-height:100%;border-radius:10px}
+.upmsg{font:400 12px var(--mono);color:var(--amber);margin-top:8px;min-height:1em}
+.form{display:grid;gap:16px}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:720px){.fgrid{grid-template-columns:1fr}}
+.fld{display:grid;gap:6px;min-width:0}
+.fld label{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--violet)}
+.fld input,.fld textarea{width:100%;min-width:0;background:var(--deep);border:1px solid var(--line);color:var(--ink);font:400 15px var(--body);padding:11px 12px;border-radius:10px}
+.fld textarea{min-height:96px;resize:vertical}
+.fld small{color:var(--faint);font-size:12.5px}
+.drop{border:1px dashed var(--line2);border-radius:12px;padding:18px;text-align:center;color:var(--mute);cursor:pointer}
+.drop:hover{border-color:var(--pink);color:var(--pink)}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{background:var(--pink);color:#0d0a14;border:0;border-radius:999px;font:600 15px var(--body);padding:12px 22px;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+.steps{display:grid;gap:8px;margin-top:6px}
+.step2{display:flex;gap:10px;align-items:baseline;font-size:14px;color:var(--faint)}
+.step2.on{color:var(--ink)} .step2.done{color:var(--green)} .step2.err{color:var(--red)}
+.step2 i{font-style:normal;font:600 12px var(--mono);width:18px}
+.howto{color:var(--mute);margin:0;padding-left:18px}.howto li{margin:4px 0}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:28px;color:var(--mute);text-align:center}
+.back{display:inline-block;margin-top:48px;font:600 13px var(--mono);text-decoration:none;color:var(--pink)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Lounge at the Edge of the Universe</div>
+      <h1>Market Library</h1>
+      <p class="mission">Every cafe in Bhubaneswar, read through one line: <em>people want a piece of themselves in real life.</em></p>
+    </div>
+    <div class="sync" id="sync">Connecting to library…</div>
+  </header>
+  <nav class="rail" id="rail" aria-label="Cafes"></nav>
+  <main id="view"><div class="empty" style="margin-top:28px">Loading the library…</div></main>
+</div>
+
+<script>
+const GST=0.05;
+const CATS=["Coffee","Tea","Matcha","Signature Drinks","Breakfast","Salads","Small Plates","Sandwiches & Burgers","Mains","Desserts"];
+const FACTOR_LABEL={"Instagrammable decor":"Decor","Menu breadth":"Menu breadth","Chef led regional novelty":"Regional novelty","Price per plate":"Price per plate","Low cost grazing tier":"Cheap grazing tier","Reason to stay (activities)":"Reason to stay","Late night hours":"Late night","Service warmth":"Service warmth","Music curation":"Music","Guest co creation":"Co creation","Belonging / membership":"Belonging"};
+const INS_ALIAS={"Jhund":"jhund","Cafe Postcard":"postcard","Ekaiva":"ekaiva","The BOMBAI":"bombai","Cafe 16":"cafe16","Bocca Cafe":"bocca","Kruti Coffee":"kruti","Cafe Indistinct Chatter":"chatter","Oberai Bakers & Cafe":"oberai","Gato House":"gato","Rolling Crunchy's":"rolling","Old Town Cafe":"oldtown","Caha":"caha"};
+const S={cafes:{},frameworks:[],insights:[],canvas:null,compare:null,route:"compare",q:"",sort:{k:"rating",d:-1},canWrite:false,db:null};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const inr=n=>n==null||isNaN(n)?"–":"₹"+Math.round(n).toLocaleString("en-IN");
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const list=()=>Object.entries(S.cafes).sort((a,b)=>(a[1].order||99)-(b[1].order||99));
+const nameOf=id=>S.cafes[id]?.name||id;
+function bands(c){const o={};for(const k of CATS){const p=(c.items||[]).filter(i=>i.cat===k).map(i=>i.price);if(p.length)o[k]={n:p.length,min:Math.min(...p),max:Math.max(...p),avg:avg(p)};}return o;}
+function stat(c){const b=bands(c);return{coffee:b.Coffee?.avg,plate:b["Small Plates"]?.avg,main:b.Mains?.avg,items:(c.items||[]).length,b};}
+function closeHour(h){if(!h||!/till|\bto\b/i.test(h))return null;const m=String(h).match(/(\d{1,2})(?::(\d{2}))?\s*pm/gi);if(!m)return null;const last=m[m.length-1];const x=last.match(/(\d{1,2})(?::(\d{2}))?/);return (+x[1]%12+12)+(+(x[2]||0))/60;}
+function starStr(r){if(!r)return"";const f=Math.round(r*2)/2;return "★".repeat(Math.floor(f))+(f%1?"½":"");}
+function secHead(n,t,sub){return `<div class="sec-h"><span class="n">${n}</span><h2>${t}</h2></div>${sub?`<p class="sub">${sub}</p>`:""}`;}
+
+function route(){S.delAsk=null;const h=(location.hash||"").replace("#","");S.route=S.cafes[h]?h:"compare";render(true);window.scrollTo(0,0);}
+window.addEventListener("hashchange",route);
+
+function renderRail(){
+  $("#rail").innerHTML=`<a href="#compare" class="cmp" ${S.route==="compare"?'aria-current="page"':""}>Compare all</a>`+
+    list().map(([id,c])=>`<a href="#${id}" ${S.route===id?'aria-current="page"':""}>${esc(c.name)}</a>`).join("");
+  const cur=$("#rail [aria-current]");if(cur)cur.scrollIntoView({inline:"center",block:"nearest"});
+}
+function render(force){renderRail();if(S.route==="add"){if(force||!$("#addform")){$("#view").innerHTML=viewAdd();bindAdd();}return;}$("#view").innerHTML=S.route==="compare"?viewCompare():viewCafe(S.route);if(S.route!=="compare")bindMenu();}
+
+/* ---------- Cafe dossier ---------- */
+function viewCafe(id){
+  const c=S.cafes[id];if(!c)return '<div class="empty">Cafe not found.</div>';
+  const st=stat(c);const b=st.b;
+  const tagMax=Math.max(1,...(c.tags||[]).map(t=>t.count));
+  const fac=S.canvas?.factors||[];
+  const myIns=S.insights.filter(i=>i.cafeId===id||INS_ALIAS[i.cafe]===id);
+  const r=c.ratings||{};
+  const rate=(k,l)=>`<div class="rate"><span>${l}</span><div class="dots">${[1,2,3,4,5].map(n=>`<button aria-label="${l} ${n} of 5" class="${(r[k]||0)>=n?"on":""}" data-rate="${k}" data-n="${n}" ${S.canWrite?"":"disabled"}></button>`).join("")}</div></div>`;
+  const sections=CATS.filter(k=>b[k]).length;
+  return `
+  <section class="hero">
+    <div class="eyebrow">Cafe dossier · logged ${esc(c.logged)}</div>
+    <h2 class="name">${esc(c.name)}</h2>
+    <div class="meta">${[c.area,c.hours,c.tier,c.status].filter(Boolean).map(x=>`<span class="tag">${esc(x)}</span>`).join("")}${c.source?`<a class="tag" style="color:var(--cyan);text-decoration:none" href="${esc(c.source)}" target="_blank" rel="noopener">Open in Maps ↗</a>`:""}</div>
+    <div class="tiles">
+      <div class="tile"><div class="k">Google rating</div><div class="v">${c.rating??"–"} <small class="stars">${starStr(c.rating)}</small></div></div>
+      <div class="tile"><div class="k">Reviews</div><div class="v">${c.reviews?c.reviews.toLocaleString("en-IN"):"–"}</div></div>
+      <div class="tile"><div class="k">Per head</div><div class="v" style="font-size:15px;line-height:1.5">${esc(c.perHead||"–")}</div></div>
+      <div class="tile"><div class="k">Avg coffee</div><div class="v">${inr(st.coffee)}</div></div>
+      <div class="tile"><div class="k">Avg small plate</div><div class="v">${inr(st.plate)}</div></div>
+      <div class="tile"><div class="k">Avg main</div><div class="v">${inr(st.main)}</div></div>
+    </div>
+  </section>
+
+  <section class="block">${secHead("01","Photos",S.assets?"Your own photos from visits, plus links to every photo guests have posted online.":"Links to every photo guests have posted online: outside, food and inside.")}
+    ${photoBlock(id,c)}
+  </section>
+
+  <section class="block">${secHead("02","The read","What this cafe is, what it does well, where it breaks, and what to take from it.")}
+    <div class="card"><dl class="read">
+      <div><dt>Vibe</dt><dd>${esc(c.vibe)}</dd></div>
+      <div><dt>Job it is hired for</dt><dd>${esc(c.job)}</dd></div>
+      <div><dt class="good">What it nails</dt><dd>${esc(c.nails)}</dd></div>
+      <div><dt class="bad">Where it breaks</dt><dd>${esc(c.breaks)}</dd></div>
+      <div><dt class="good">Steal this</dt><dd>${esc(c.steal)}</dd></div>
+      <div><dt class="bad">Avoid this</dt><dd>${esc(c.avoid)}</dd></div>
+      ${c.verbatim?`<div style="grid-column:1/-1"><dt>Your words</dt><dd class="quote">${esc(c.verbatim)}</dd></div>`:""}
+    </dl></div>
+  </section>
+
+  <section class="block">${secHead("03","What reviewers say","The evidence behind the read. Tag counts are how often Google groups reviews by that topic; summaries are paraphrased.")}
+    <div class="grid2">
+      <div class="card"><div class="eyebrow" style="margin-bottom:12px">Most mentioned in reviews</div>
+        ${(c.tags||[]).length?`<div class="bars">${c.tags.map(t=>`<div class="bar"><span class="t">${esc(t.tag)}</span><div class="tr"><div class="fl" style="width:${(t.count/tagMax*100).toFixed(1)}%"></div></div><span class="c">${t.count}</span></div>`).join("")}</div>`:`<p class="sub" style="margin:0">Google shows no topic tags for this listing.</p>`}
+      </div>
+      <div class="ev">${(c.evidence||[]).map(e=>`<div class="card"><h4>${esc(e.claim)}</h4><p>${esc(e.says)}</p></div>`).join("")||'<div class="card"><p class="sub" style="margin:0">No review evidence logged yet.</p></div>'}</div>
+    </div>
+    <p class="note">${esc(c.reviewSource||"")}</p>
+    <div class="eyebrow" style="margin:26px 0 12px">Around the web</div>
+    ${(c.web||[]).length?`<div class="webs">${c.web.map(w=>`<a class="card web" href="${esc(w.url)}" target="_blank" rel="noopener"><div class="wh"><b>${esc(w.source)}</b><span>${esc(w.meta)}</span></div><p>${esc(w.summary)}</p><span class="go">Read the source ↗</span></a>`).join("")}</div><p class="note">Summarised in my own words from each source, read 13 Oct 2026.</p>`:`<p class="sub" style="margin:0">No independent reviews found beyond Google for this cafe yet.</p>`}
+  </section>
+
+  <section class="block">${secHead("04","Through the lenses","The strategy frameworks from the library, applied to this cafe.")}
+    <div class="grid2 lens">
+      <div class="card"><h3>Jobs to Be Done</h3><div class="q">What is someone hiring this place for?</div><p>${esc(c.job)}</p></div>
+      <div class="card"><h3>Positioning</h3><div class="q">What one idea does it own?</div><p>${esc(c.lens?.positioning||"–")}</p></div>
+      <div class="card"><h3>Experience Economy</h3><div class="q">Which realms does it stage?</div><p>${esc(c.lens?.experience||"–")}</p></div>
+      <div class="card"><h3>Third Place</h3><div class="q">Can someone come alone, stay long, and meet someone?</div><p>${esc(c.lens?.third||"–")}</p></div>
+      <div class="card"><h3>Menu Engineering</h3><div class="q">Focused, or trying to be everything?</div><p>${st.items} items logged across ${sections} sections. ${st.items>110?"A very broad menu: hard to execute consistently, and the signature gets lost.":st.items>70?"A broad menu with room to trim.":"A relatively focused menu."}</p></div>
+      <div class="card"><h3>Pricing</h3><div class="q">Where does it sit, and what is the cheapest way in?</div><p>Cheapest item ${inr(Math.min(...(c.items||[{price:NaN}]).map(i=>i.price)))}, average main ${inr(st.main)}. ${esc(c.gstNote||"")}</p></div>
+    </div>
+    ${fac.length?`<div class="card" style="margin-top:14px"><h3 style="font:600 14px var(--display);color:var(--cyan);margin:0 0 4px">Blue Ocean: strategy canvas</h3><div class="q" style="font:500 12px var(--mono);color:var(--faint)">How it scores (1 to 5) on what cafes compete on, against the typical cafe and the Lounge concept.</div>
+      <div class="fac">${fac.map(f=>{const v=f.scores?.[id];const p=x=>((x-1)/4*100).toFixed(1)+"%";return `<div class="frow"><span>${esc(FACTOR_LABEL[f.factor]||f.factor)}</span><div class="ftrack"><span class="mk m" style="left:${p(f.market)}"></span>${v!=null?`<span class="mk c" style="left:${p(v)}" title="${esc(c.name)}: ${v}"></span>`:""}<span class="mk l" style="left:${p(f.lounge)}"></span></div></div>`}).join("")}</div>
+      <div class="legend"><span><i style="background:var(--violet)"></i>${esc(c.name)}</span><span><i style="border:2px solid var(--faint)"></i>Typical cafe</span><span><i style="background:var(--pink)"></i>The Lounge</span><span style="color:var(--faint)">Left is 1, right is 5</span></div></div>`:""}
+  </section>
+
+  <section class="block">${secHead("05","Price bands","Cheapest to priciest item per section, before tax. The white tick is the average.")}
+    <div class="card">${priceBands(b)}</div>
+  </section>
+
+  <section class="block">${secHead("06","Full menu",`${st.items} items. Prices before tax.`)}
+    <div class="toolbar"><input id="mq" type="search" placeholder="Search dishes, ingredients or regions" value="${esc(S.q)}"><span class="count" id="mcount"></span></div>
+    <div id="menu"></div>
+    ${(c.addons||[]).length?`<p class="note">Add ons: ${c.addons.map(a=>`${esc(a.name)} ${inr(a.price)}`).join(" · ")}</p>`:""}
+  </section>
+
+  <section class="block">${secHead("07","Insights for the Lounge","What this cafe taught, and what it means for you.")}
+    <div class="ins">${myIns.length?myIns.map(i=>`<div class="card"><div><span class="tag">${esc(i.date)}</span> <span class="tag" style="color:var(--violet)">${esc(i.lens)}</span></div><div>${esc(i.insight)}</div><div class="imp"><b>For the Lounge:</b> ${esc(i.implication)}</div>${i.verbatim?`<div class="quote">${esc(i.verbatim)}</div>`:""}</div>`).join(""):'<div class="empty">No insights logged for this cafe yet.</div>'}</div>
+  </section>
+
+  <section class="block">${secHead("08","Ratings after a visit","Sawaschin's own scores, out of 5.")}
+    <div class="ratings">${rate("food","Food")}${rate("service","Service")}${rate("stay","Stay factor")}${rate("soul","Soul")}</div>
+  </section>
+  <a class="back" href="#compare">← Compare all cafes</a>`;
+}
+function photoBlock(id,c){
+  const ph=c.photos||[];
+  const maps=c.source||("https://www.google.com/maps/search/"+encodeURIComponent((c.name||"")+" Bhubaneswar"));
+  const gi=q=>"https://www.google.com/search?tbm=isch&q="+encodeURIComponent((c.name||"")+" Bhubaneswar "+q);
+  const links=[{label:"Outside",url:gi("cafe exterior entrance")},{label:"Food",url:gi("food dishes")},{label:"Inside",url:gi("interior ambience")},{label:"Guest photos on Google Maps",url:maps},...(c.links||[])];
+  const can=!!S.assets;
+  const tiles=ph.map(p=>`<div class="ph"><img src="/_blob/${esc(p.id)}" alt="${esc(c.name)} photo" loading="lazy" data-zoom="/_blob/${esc(p.id)}">${can?`<button class="del ${S.delAsk===p.id?"sure":""}" data-del="${esc(p.id)}">${S.delAsk===p.id?"Tap again to delete":"Delete"}</button>`:""}</div>`).join("");
+  const add=can?`<label class="addph" for="phin"><b>+</b>Add photos<span style="font-size:12px;color:var(--faint)">From your visits. Resized automatically.</span></label><input id="phin" type="file" accept="image/*" multiple hidden>`:"";
+  const empty=!ph.length&&!can?`<div class="phempty">No photos added yet.</div>`:"";
+  return `<div class="gal">${tiles}${add}${empty}</div><div class="upmsg" id="upmsg"></div><div class="plinks">${links.map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("")}</div>`;
+}
+async function shrink(file){
+  try{const bmp=await createImageBitmap(file);const m=1600,sc=Math.min(1,m/Math.max(bmp.width,bmp.height));const cv=document.createElement("canvas");cv.width=Math.round(bmp.width*sc);cv.height=Math.round(bmp.height*sc);cv.getContext("2d").drawImage(bmp,0,0,cv.width,cv.height);
+    return await new Promise(r=>cv.toBlob(b=>r(b||file),"image/jpeg",0.85));}catch(e){return file;}
+}
+async function uploadPhotos(files){
+  const id=S.route,msg=$("#upmsg");const added=[];
+  for(const [i,f] of [...files].entries()){
+    if(msg)msg.textContent=`Uploading ${i+1} of ${files.length}…`;
+    try{const b=await shrink(f);const r=await S.assets.upload(b,{type:b.type||"image/jpeg"});added.push({id:r.id,added:new Date().toISOString().slice(0,10)});}
+    catch(e){if(msg)msg.textContent=e?.code==="too_large"?"That photo is too large. Try a smaller one.":e?.code==="unsupported_type"?"That file type is not supported. Use JPG, PNG or WebP.":"Upload failed. Try again in a moment.";if(!added.length)return;}
+  }
+  try{await S.db.doc("cafes/"+id).update({photos:[...(S.cafes[id].photos||[]),...added]});if(msg)msg.textContent=`Added ${added.length} photo${added.length===1?"":"s"}.`;}
+  catch(e){if(msg)msg.textContent="Photos uploaded but could not be saved to this cafe. Try again.";}
+}
+function priceBands(b){
+  const ks=CATS.filter(k=>b[k]);if(!ks.length)return '<p class="sub" style="margin:0">No menu logged yet.</p>';
+  const top=Math.max(600,Math.ceil(Math.max(...ks.map(k=>b[k].max))/100)*100);const pct=n=>(n/top*100).toFixed(2)+"%";
+  return `<div class="bands">${ks.map(k=>`<div class="band"><div class="bn">${k}<small>${b[k].n} items</small></div><div class="track"><div class="range" style="left:${pct(b[k].min)};width:max(10px,${pct(b[k].max-b[k].min)})"></div><div class="avg" style="left:${pct(b[k].avg)}"></div></div><div class="nums">${inr(b[k].min)} · <b>${inr(b[k].avg)}</b> · ${inr(b[k].max)}</div></div>`).join("")}</div><p class="note">Scale runs ₹0 to ₹${top.toLocaleString("en-IN")}.</p>`;
+}
+function bindMenu(){
+  const inp=$("#mq");if(!inp)return;
+  const draw=()=>{
+    const c=S.cafes[S.route];const q=S.q.toLowerCase();
+    const rows=(c.items||[]).filter(i=>!q||(i.name+" "+i.components+" "+i.region+" "+i.section).toLowerCase().includes(q));
+    const groups=CATS.map(k=>[k,rows.filter(i=>i.cat===k)]).filter(g=>g[1].length);
+    $("#menu").innerHTML=groups.map(([k,its],gi)=>`<details class="grp" ${q||gi<2?"open":""}><summary><b>${k}</b><span>${its.length} items · ${inr(Math.min(...its.map(i=>i.price)))} to ${inr(Math.max(...its.map(i=>i.price)))}</span></summary><div class="items">${its.sort((a,b)=>a.price-b.price).map(i=>`<div class="it"><span class="nm">${esc(i.name)}</span><span class="pr">${inr(i.price)}</span>${i.components?`<span class="cp">${esc(i.components)}</span>`:""}<div class="chips"><span class="job ${esc(i.job)}">${esc(i.job)}</span>${i.diet?`<span class="mini">${esc(i.diet)}</span>`:""}${i.region?`<span class="mini">· ${esc(i.region)}</span>`:""}${i.section&&i.section!==k?`<span class="mini">· ${esc(i.section)}</span>`:""}</div></div>`).join("")}</div></details>`).join("")||'<div class="empty">Nothing matches that search.</div>';
+    $("#mcount").textContent=`${rows.length} of ${(c.items||[]).length}`;
+  };
+  inp.oninput=e=>{S.q=e.target.value;draw();};draw();
+}
+
+/* ---------- Compare ---------- */
+function viewCompare(){
+  const L=list();if(!L.length)return '<div class="empty" style="margin-top:28px">No cafes logged yet.</div>';
+  const rows=L.map(([id,c])=>{const s=stat(c);return{id,c,name:c.name,rating:c.rating||0,reviews:c.reviews||0,coffee:s.coffee||0,plate:s.plate||0,main:s.main||0,items:s.items,close:closeHour(c.hours)||0,per:c.perHead||"–",pos:c.lens?.positioning||""};});
+  const k=S.sort.k,d=S.sort.d;rows.sort((a,b)=>(typeof a[k]==="string"?a[k].localeCompare(b[k]):(a[k]-b[k]))*d);
+  const th=(key,label,num)=>`<th class="${num?"num":""}" data-sort="${key}" ${k===key?`data-dir="${d>0?"↑":"↓"}"`:""}>${label}</th>`;
+  const fmtClose=h=>!h?"–":`${Math.floor(h)-12}${h%1?":"+String(Math.round(h%1*60)).padStart(2,"0"):""}pm`;
+  const totalItems=rows.reduce((s,r)=>s+r.items,0);
+  return `
+  <section class="hero">
+    <div class="eyebrow">Side by side · ${L.length} cafes · ${totalItems.toLocaleString("en-IN")} menu items</div>
+    <h2 class="name" style="font-size:clamp(26px,4.4vw,40px)">The Bhubaneswar cafe market</h2>
+    <p class="sub" style="font-size:16px">Every cafe here sells a meal or a mood. None stays open past midnight, and none is designed for strangers to meet. That is the lane for the Lounge.</p>
+  </section>
+
+  <section class="block">${secHead("01","Scoreboard","Tap a column to sort. Tap a name to open its dossier.")}
+    <div class="tablewrap"><table class="score"><thead><tr>${th("name","Cafe")}${th("rating","Rating",1)}${th("reviews","Reviews",1)}<th>Per head</th>${th("coffee","Avg coffee",1)}${th("plate","Avg plate",1)}${th("main","Avg main",1)}${th("items","Items",1)}${th("close","Closes",1)}<th>Owns the idea of</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td><a href="#${r.id}">${esc(r.name)}</a></td><td class="num">${r.rating||"–"}</td><td class="num">${r.reviews?r.reviews.toLocaleString("en-IN"):"–"}</td><td style="white-space:nowrap">${esc(r.per)}</td><td class="num">${inr(r.coffee||null)}</td><td class="num">${inr(r.plate||null)}</td><td class="num">${inr(r.main||null)}</td><td class="num">${r.items}</td><td class="num">${fmtClose(r.close)}</td><td>${esc(r.pos)}</td></tr>`).join("")}</tbody></table></div>
+    <p class="note">Averages are menu averages before tax. Some menus are older than others; each dossier notes its photo dates.</p>
+  </section>
+
+  <section class="block">${secHead("02","Where prices sit","Average coffee, small plate and main for each cafe, ordered by average main.")}
+    <div class="card">${priceDots(rows)}</div>
+  </section>
+
+  <section class="block">${secHead("03","Strategy canvas, all cafes","Blue Ocean scores from 1 to 5 on what cafes compete on. Brighter means stronger. The Lounge column is the concept.")}
+    ${heatmap(L)}
+  </section>
+
+  <section class="block">${secHead("04","What the evidence says","Each strategic claim, backed by what reviewers say across the cafes. Tap a cafe to see its full dossier.")}
+    <div class="claims">${(S.compare?.claims||[]).map(cl=>`<div class="card claim"><h3>${esc(cl.claim)}</h3><p class="d">${esc(cl.detail)}</p><div class="proof">${cl.proof.map(([id,t])=>`<div class="pf"><a href="#${id}">${esc(nameOf(id))}</a><span>${esc(t)}</span></div>`).join("")}</div><div class="lo"><b>For the Lounge</b>${esc(cl.lounge)}</div></div>`).join("")}</div>
+  </section>
+
+  <section class="block">${secHead("05","Who owns what","Each cafe's one idea, the experience it stages, and how well it works as a third place.")}
+    <div class="pos">${L.map(([id,c])=>`<a href="#${id}" style="text-decoration:none;color:inherit"><div class="card" style="height:100%"><h4>${esc(c.name)}</h4><p class="p">${esc(c.lens?.positioning||"")}</p><p class="x">${esc(c.lens?.third||"")}</p></div></a>`).join("")}</div>
+  </section>
+
+  <section class="block">${secHead("06","The gap","What the market has proven, and what nobody is doing yet.")}
+    <div class="gap">
+      <div class="card"><div class="eyebrow" style="color:var(--green)">Proven</div><ul>
+        <li>People pay ₹400 to ₹500 a plate (Jhund, Ekaiva, Bombai, Gato)</li>
+        <li>People stay for hours (Bocca, Cafe 16, Old Town)</li>
+        <li>A committed theme gets remembered (Bombai)</li>
+        <li>Kind service tops the ratings (Kruti 4.8)</li>
+        <li>Everyday prices build regulars (Rolling Crunchy's, Old Town)</li>
+        <li>Prices rise about 10% a year</li></ul></div>
+      <div class="card"><div class="eyebrow" style="color:var(--pink)">Wide open</div><ul>
+        <li>Nothing open past 11:45pm</li>
+        <li>Nothing designed for strangers to meet</li>
+        <li>No guest co created menu</li>
+        <li>No membership or belonging</li>
+        <li>No experimental place with solid basics</li>
+        <li>No youth culture built for this city, only borrowed ones</li></ul></div>
+    </div>
+  </section>
+
+  <section class="block">${secHead("07","Market insights","Lessons about the whole market and the Lounge itself.")}
+    <div class="ins">${S.insights.filter(i=>!INS_ALIAS[i.cafe]&&!i.cafeId).map(i=>`<div class="card"><div><span class="tag">${esc(i.date)}</span> <span class="tag">${esc(i.cafe)}</span> <span class="tag" style="color:var(--violet)">${esc(i.lens)}</span></div><div>${esc(i.insight)}</div><div class="imp"><b>For the Lounge:</b> ${esc(i.implication)}</div>${i.verbatim?`<div class="quote">${esc(i.verbatim)}</div>`:""}</div>`).join("")}</div>
+  </section>
+
+  <section class="block">${secHead("08","The frameworks","The strategy tools behind every lens, in plain words.")}
+    ${S.frameworks.map(f=>`<details class="f"><summary><b>${esc(f.name)}</b><span>${esc(f.source)}</span></summary><div class="fb"><p>${esc(f.idea)}</p><p class="q">${esc(f.question)}</p><p><b style="color:var(--pink)">For the Lounge:</b> ${esc(f.lounge)}</p>${f.link?`<p><a href="${esc(f.link)}" target="_blank" rel="noopener">Read the original ↗</a></p>`:""}</div></details>`).join("")}
+  </section>`;
+}
+function priceDots(rows){
+  const R=[...rows].filter(r=>r.main||r.plate||r.coffee).sort((a,b)=>(b.main||b.plate)-(a.main||a.plate));
+  const W=900,lh=30,top=34,left=170,right=24,H=top+R.length*lh+10,max=700;
+  const x=v=>left+(v/max)*(W-left-right);
+  let s=`<div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:640px;display:block" role="img" aria-label="Average prices by cafe">`;
+  for(let v=0;v<=max;v+=100)s+=`<line x1="${x(v)}" x2="${x(v)}" y1="${top-8}" y2="${H-6}" stroke="#2e2440"/><text x="${x(v)}" y="${top-14}" fill="#76698c" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="middle">₹${v}</text>`;
+  R.forEach((r,i)=>{const y=top+i*lh+lh/2;
+    s+=`<text x="${left-12}" y="${y+4}" fill="#ece6f5" font-family="Figtree,sans-serif" font-size="13" text-anchor="end">${esc(r.name)}</text>`;
+    const vals=[r.coffee,r.plate,r.main].filter(Boolean);if(vals.length>1)s+=`<line x1="${x(Math.min(...vals))}" x2="${x(Math.max(...vals))}" y1="${y}" y2="${y}" stroke="#3c2f54" stroke-width="2"/>`;
+    [[r.coffee,"#7fe3e0","Coffee"],[r.plate,"#b89cff","Small plate"],[r.main,"#ff8fcf","Main"]].forEach(([v,c,l])=>{if(v)s+=`<circle cx="${x(v)}" cy="${y}" r="6" fill="${c}"><title>${esc(r.name)} · ${l}: ₹${Math.round(v)}</title></circle>`;});});
+  return s+`</svg></div><div class="legend"><span><i style="background:var(--cyan)"></i>Avg coffee</span><span><i style="background:var(--violet)"></i>Avg small plate</span><span><i style="background:var(--pink)"></i>Avg main</span></div>`;
+}
+function heatmap(L){
+  const f=S.canvas?.factors||[];if(!f.length)return '<div class="empty">Canvas not loaded.</div>';
+  const cell=v=>v==null?`<td style="color:var(--faint)">–</td>`:`<td style="background:rgba(184,156,255,${(0.06+(v-1)/4*0.6).toFixed(2)});color:${v>=4?"#0d0a14":"var(--ink)"}">${v}</td>`;
+  return `<div class="tablewrap"><table class="heat" style="min-width:${180+(L.length+1)*44}px"><thead><tr><th>Factor</th>${L.map(([id,c])=>`<th>${esc(c.name)}</th>`).join("")}<th style="color:var(--pink)">The Lounge</th></tr></thead><tbody>${f.map(r=>`<tr><td>${esc(FACTOR_LABEL[r.factor]||r.factor)}</td>${L.map(([id])=>cell(r.scores?.[id])).join("")}<td class="lc" style="background:rgba(255,143,207,${(0.08+(r.lounge-1)/4*0.6).toFixed(2)});color:${r.lounge>=4?"#0d0a14":"var(--ink)"}">${r.lounge}</td></tr>`).join("")}</tbody></table></div>
+  <p class="note">Scores are Claude's read from menus, reviews and your notes. The Lounge is scored on the concept as discussed.</p>`;
+}
+
+
+/* ---------- Add a cafe ---------- */
+const FACTORS=["Instagrammable decor","Menu breadth","Chef led regional novelty","Price per plate","Low cost grazing tier","Reason to stay (activities)","Late night hours","Service warmth","Music curation","Guest co creation","Belonging / membership"];
+let ADD={files:[],ctl:null,busy:false};
+function viewAdd(){
+  const can=S.canWrite&&S.sample;const img=!!S.limits?.images;
+  return `<section class="hero"><div class="eyebrow">Add to the library</div><h2 class="name" style="font-size:clamp(26px,4.4vw,40px)">Add a cafe</h2>
+  <p class="sub" style="font-size:16px">Fill in what you know, add photos of the menu, and the app writes the full dossier: menu, price bands, the read, the lenses, the canvas scores and insights for the Lounge.</p></section>
+  ${!S.sample?`<div class="card" style="margin-top:20px"><p style="margin:0">Report writing needs Claude, which is only available when you open this page signed in to claude.ai. You can still send me a cafe in our chat and I will add it.</p></div>`:""}
+  ${S.sample&&!S.canWrite?`<div class="card" style="margin-top:20px"><p style="margin:0">Only the owner of this library can add cafes.</p></div>`:""}
+  <section class="block"><form id="addform" class="form card" autocomplete="off">
+    <div class="fgrid">
+      <div class="fld"><label for="f-name">Cafe name *</label><input id="f-name" required placeholder="e.g. Three Chariots Coffee"></div>
+      <div class="fld"><label for="f-area">Area</label><input id="f-area" placeholder="e.g. Patia"></div>
+      <div class="fld"><label for="f-maps">Google Maps link</label><input id="f-maps" type="url" inputmode="url" placeholder="https://maps.app.goo.gl/…"></div>
+      <div class="fld"><label for="f-hours">Hours</label><input id="f-hours" placeholder="e.g. 11am to 11pm"></div>
+      <div class="fld"><label for="f-rating">Google rating</label><input id="f-rating" inputmode="decimal" placeholder="e.g. 4.4"></div>
+      <div class="fld"><label for="f-reviews">Number of reviews</label><input id="f-reviews" inputmode="numeric" placeholder="e.g. 623"></div>
+      <div class="fld"><label for="f-per">Price per head</label><input id="f-per" placeholder="e.g. ₹200 to ₹600"></div>
+      <div class="fld"><label for="f-date">Menu photo date</label><input id="f-date" placeholder="e.g. Sep 2026"></div>
+    </div>
+    <div class="fld"><label for="f-take">Your take</label><textarea id="f-take" placeholder="What you felt there, in your own words. This becomes 'Your words' on the dossier."></textarea></div>
+    <div class="fld"><label for="f-notes">Reviews and notes</label><textarea id="f-notes" placeholder="Paste review highlights, review topic counts from Maps (e.g. ambience 120), anything you noticed."></textarea><small>The more real evidence you paste, the better the report backs its claims.</small></div>
+    <div class="fld"><label>Menu photos</label>
+      ${img?`<label class="drop" for="f-menu">Tap to add menu photos<br><small>Clear, straight-on shots work best. Up to ${S.limits.images.maxCount} are read at a time; more are read in batches.</small></label><input id="f-menu" type="file" accept="${esc((S.limits.images.mediaTypes||["image/jpeg","image/png","image/webp"]).join(","))}" multiple hidden><div class="thumbs" id="thumbs"></div>`
+      :`<small>Photo reading is not available in this view. Paste the menu as text below instead.</small>`}
+    </div>
+    <div class="fld"><label for="f-menutext">Or paste the menu as text</label><textarea id="f-menutext" placeholder="Dish name, price, one per line"></textarea></div>
+    <div class="btnrow"><button class="btn" id="go" type="submit" ${can?"":"disabled"}>Build the report</button><button class="btn ghost" id="stop" type="button" hidden>Stop</button></div>
+    <div class="steps" id="steps"></div>
+  </form></section>
+  <section class="block">${secHead("","Or add it from the chat","Send me a Maps link and menu photos in our conversation and I will add the cafe here, with deeper research than the in-app writer can do.")}
+    <ol class="howto"><li>Paste the Google Maps link and say the cafe's name.</li><li>Attach full-size menu photos, or I will read them from Maps.</li><li>Add anything you felt there. The dossier appears at this same address.</li></ol></section>`;
+}
+function bindAdd(){
+  const f=$("#f-menu");if(f)f.onchange=()=>{ADD.files=[...f.files];$("#thumbs").innerHTML=ADD.files.map(x=>`<img src="${URL.createObjectURL(x)}" alt="">`).join("");};
+  const form=$("#addform");if(form)form.onsubmit=e=>{e.preventDefault();buildReport();};
+  const st=$("#stop");if(st)st.onclick=()=>ADD.ctl?.abort();
+}
+function setSteps(list){$("#steps").innerHTML=list.map(([t,state])=>`<div class="step2 ${state}"><i>${state==="done"?"✓":state==="err"?"!":state==="on"?"…":"·"}</i><span>${esc(t)}</span></div>`).join("");}
+const ERRMSG={not_granted:"Claude was not allowed for this page. Allow it from the page's permissions and try again.",rate_limited:"Too many requests right now. Wait a minute and try again.",image_rejected:"One of the photos could not be read. Try a different photo.",invalid_json:"The report came back in an unexpected shape. Try again.",refused:"Claude declined to read this input. Try different photos or notes.",session_expired:"Sign in again, then try.",prompt_too_large:"Too much text at once. Shorten the notes or menu text.",cancelled:"Stopped."};
+function slugify(n){let b=(n||"cafe").toLowerCase().replace(/[^a-z0-9]+/g,"").slice(0,24)||"cafe";let s=b,i=2;while(S.cafes[s])s=b+i++;return s;}
+function marketContext(){
+  return list().map(([id,c])=>{const s=stat(c);return `${c.name} | rating ${c.rating??"?"} (${c.reviews??"?"}) | avg coffee ${Math.round(s.coffee||0)} | avg small plate ${Math.round(s.plate||0)} | avg main ${Math.round(s.main||0)} | owns: ${c.lens?.positioning||""}`;}).join("\n");
+}
+async function buildReport(){
+  if(ADD.busy)return;const v=id=>($("#"+id)?.value||"").trim();
+  const name=v("f-name");if(!name){$("#f-name").focus();return;}
+  ADD.busy=true;ADD.ctl=new AbortController();const sig=ADD.ctl.signal;$("#go").disabled=true;$("#stop").hidden=false;
+  const steps=[["Reading the menu","on"],["Writing the read and scoring the canvas",""],["Saving the dossier",""]];setSteps(steps);
+  const CAT=CATS.join(", ");let items=[];
+  try{
+    const menuPrompt=`You are reading a cafe menu for a market research library in Bhubaneswar, India. Extract every dish and drink with its price in rupees.
+Reply with only a JSON array. Each element: {"cat": one of [${CAT}], "section": the menu's own section name, "name": dish name, "diet": "Veg" | "Non veg" | "Egg" | "Vegan", "price": number (the base or smallest price; put other variant prices in components), "components": short description from the menu (may be ""), "region": regional or cuisine reference if obvious (may be ""), "job": "Comfort" | "Discovery" | "Fuel" | "Treat"}.
+Job meanings: Comfort = familiar food people crave; Discovery = novel or regional; Fuel = everyday coffee, tea, salads, functional; Treat = indulgent desserts and sweet drinks. Skip items with no readable price.`;
+    const batches=[];const max=S.limits?.images?.maxCount||1;for(let i=0;i<ADD.files.length;i+=max)batches.push(ADD.files.slice(i,i+max));
+    for(const [bi,b] of batches.entries()){steps[0][0]=`Reading the menu (photo batch ${bi+1} of ${batches.length})`;setSteps(steps);
+      const r=await S.sample.json(menuPrompt+"\n\nThe attached images are menu pages.",{images:b,signal:sig,modelTier:"default"});if(Array.isArray(r))items.push(...r);}
+    if(v("f-menutext")){const r=await S.sample.json(menuPrompt+"\n\nMenu text:\n"+v("f-menutext").slice(0,40000),{signal:sig,modelTier:"default"});if(Array.isArray(r))items.push(...r);}
+    items=items.filter(i=>i&&i.name&&isFinite(+i.price)).map(i=>({cat:CATS.includes(i.cat)?i.cat:"Small Plates",section:String(i.section||""),name:String(i.name),diet:String(i.diet||""),price:+i.price,components:String(i.components||""),region:String(i.region||""),spicy:false,job:["Comfort","Discovery","Fuel","Treat"].includes(i.job)?i.job:"Comfort"}));
+    steps[0]=[`Read ${items.length} menu items`,"done"];steps[1][1]="on";setSteps(steps);
+    const bands=CATS.map(k=>{const p=items.filter(i=>i.cat===k).map(i=>i.price);return p.length?`${k}: ${p.length} items, ₹${Math.min(...p)} to ₹${Math.max(...p)}, avg ₹${Math.round(avg(p))}`:null;}).filter(Boolean).join("\n");
+    const sampleItems=items.slice(0,140).map(i=>`${i.cat} | ${i.name} | ₹${i.price} | ${i.components}`).join("\n");
+    const readPrompt=`You are a sharp strategy mentor helping a 20 year old founder in Bhubaneswar, India, research cafes before opening his own third space, "Lounge at the Edge of the Universe". His mission: give young people in a city with no youth culture a place to get a piece of themselves in real life. The Lounge concept: galactic, soft neon world; lounges not tables; guests co-create the menu (dishes that win get the guest's name); clusters of regulars; membership; late night hours; music that feels like space; kind service.
+
+Write a dossier for this cafe. Be specific, evidence based and honest; only make claims the data below supports. Plain words, short sentences, no dashes as punctuation.
+
+CAFE: ${name}
+Area: ${v("f-area")} | Hours: ${v("f-hours")} | Google rating: ${v("f-rating")} (${v("f-reviews")} reviews) | Price per head: ${v("f-per")}
+Founder's own take: ${v("f-take")||"(none)"}
+Reviews and notes pasted by the founder:
+${v("f-notes").slice(0,12000)||"(none)"}
+Menu price bands:
+${bands||"(no menu)"}
+Menu items:
+${sampleItems||"(no menu)"}
+
+OTHER CAFES ALREADY IN THE LIBRARY (for comparison):
+${marketContext()}
+
+Reply with only one JSON object:
+{"vibe": one sentence, "job": the job customers hire it for (Jobs to Be Done), "nails": what it does well, "breaks": where it breaks, "steal": what the Lounge should steal, "avoid": what the Lounge should avoid,
+"lens": {"experience": which Experience Economy realms it stages, "positioning": the one idea it owns in under 10 words, "third": how well it works as a third place},
+"tier": "Budget" | "Mid" | "Premium",
+"evidence": [up to 4 {"claim": short claim, "says": what the pasted reviews or notes say that backs it, paraphrased; omit if no evidence}],
+"tags": [up to 4 {"tag": topic, "count": number} ONLY if counts were pasted],
+"scores": {${FACTORS.map(f=>`"${f}": 1-5`).join(", ")}},
+"insights": [2 to 4 {"insight": what this cafe teaches, citing numbers, "lens": framework name such as Pricing, Positioning, JTBD, Third Place, Experience Economy, Menu Engineering, Elements of Value, "implication": what it means for the Lounge}]}`;
+    const rep=await S.sample.json(readPrompt,{signal:sig,modelTier:"complex"});
+    steps[1]=["Wrote the read and scored the canvas","done"];steps[2][1]="on";setSteps(steps);
+    const id=slugify(name);const today=new Date().toISOString().slice(0,10);
+    const order=Math.max(0,...list().map(([,c])=>c.order||0))+1;
+    let menuPhotos=[];if(S.assets&&ADD.files.length){for(const f of ADD.files){try{const b=await shrink(f);const r=await S.assets.upload(b,{type:b.type||"image/jpeg"});menuPhotos.push({id:r.id,added:today,kind:"menu"});}catch(e){}}}
+    const doc={name,area:v("f-area"),hours:v("f-hours"),status:items.length?"Menu logged":"Menu pending",tier:rep.tier||"",order,
+      rating:parseFloat(v("f-rating"))||null,reviews:parseInt(v("f-reviews").replace(/\D/g,""))||null,perHead:v("f-per"),
+      vibe:String(rep.vibe||""),job:String(rep.job||""),nails:String(rep.nails||""),breaks:String(rep.breaks||""),steal:String(rep.steal||""),avoid:String(rep.avoid||""),
+      verbatim:v("f-take"),ratings:{food:null,service:null,stay:null,soul:null},
+      gstNote:`Prices as read from the menu${v("f-date")?" photographed "+v("f-date"):""}. Written by the in-app report writer on ${today}.`,
+      source:v("f-maps"),logged:today,items,addons:[],photos:menuPhotos,
+      lens:{experience:String(rep.lens?.experience||""),positioning:String(rep.lens?.positioning||""),third:String(rep.lens?.third||"")},
+      evidence:(rep.evidence||[]).filter(e=>e&&e.claim).map(e=>({claim:String(e.claim),says:String(e.says||"")})),
+      tags:(rep.tags||[]).filter(t=>t&&t.tag&&isFinite(+t.count)).map(t=>({tag:String(t.tag),count:+t.count})),
+      reviewSource:"From the reviews and notes you pasted. Paraphrased by the in-app report writer.",web:[],links:[]};
+    await S.db.doc("cafes/"+id).set(doc);
+    if(S.canvas){const cv=JSON.parse(JSON.stringify(S.canvas));cv.factors.forEach(f=>{const x=+rep.scores?.[f.factor];if(x>=1&&x<=5){f.scores=f.scores||{};f.scores[id]=Math.round(x);}});await S.db.doc("meta/canvas").set(cv);}
+    const newIns=(rep.insights||[]).filter(i=>i&&i.insight).map(i=>({date:today,cafe:name,cafeId:id,insight:String(i.insight),lens:String(i.lens||""),implication:String(i.implication||""),verbatim:""}));
+    if(newIns.length)await S.db.doc("meta/insights").set({list:[...S.insights,...newIns]});
+    steps[2]=["Saved. Opening the dossier…","done"];setSteps(steps);
+    ADD.files=[];setTimeout(()=>{location.hash=id;},700);
+  }catch(e){
+    const i=steps.findIndex(s=>s[1]==="on");if(i>=0)steps[i][1]="err";steps.push([ERRMSG[e?.code]||"Something went wrong. Try again in a moment.","err"]);setSteps(steps);
+  }finally{ADD.busy=false;const g=$("#go");if(g)g.disabled=false;const st=$("#stop");if(st)st.hidden=true;}
+}
+
+/* ---------- Events and data ---------- */
+document.addEventListener("change",e=>{if(e.target.id==="phin"&&e.target.files.length&&S.assets)uploadPhotos(e.target.files);});
+document.addEventListener("click",async e=>{
+  const z=e.target.closest("[data-zoom]");if(z){const d=document.createElement("div");d.className="lb";d.innerHTML=`<img src="${z.dataset.zoom}" alt="">`;d.onclick=()=>d.remove();document.body.appendChild(d);return;}
+  const del=e.target.closest("button[data-del]");
+  if(del&&S.assets){const pid=del.dataset.del;if(S.delAsk!==pid){S.delAsk=pid;render();return;}
+    S.delAsk=null;const id=S.route;try{await S.db.doc("cafes/"+id).update({photos:(S.cafes[id].photos||[]).filter(p=>p.id!==pid)});await S.assets.delete(pid);}catch(err){const m=$("#upmsg");if(m)m.textContent="Could not delete that photo. Try again.";}return;}
+});
+document.addEventListener("click",async e=>{
+  const th=e.target.closest("th[data-sort]");
+  if(th){const k=th.dataset.sort;if(S.sort.k===k)S.sort.d*=-1;else S.sort={k,d:k==="name"?1:-1};render();return;}
+  const t=e.target.closest("button[data-rate]");
+  if(t&&S.canWrite&&S.db){const c=S.cafes[S.route];const k=t.dataset.rate,n=+t.dataset.n;const r={...(c.ratings||{})};r[k]=r[k]===n?null:n;
+    try{await S.db.doc("cafes/"+S.route).update({ratings:r});}catch(err){S.canWrite=false;render();}}
+});
+(async()=>{
+  try{const r=await fetch("data.json",{cache:"no-store"});const d=await r.json();
+    S.cafes=d.cafes;S.frameworks=d.meta.frameworks?.list||[];S.insights=d.meta.insights?.list||[];S.canvas=d.meta.canvas||null;S.compare=d.meta.compare||null;
+    const n=Object.keys(S.cafes).length;$("#sync").innerHTML=`<b>${n} cafes</b> · updated ${esc(d.updated||"")}`;
+    const h=(location.hash||"").replace("#","");S.route=S.cafes[h]?h:"compare";render(true);
+  }catch(e){$("#sync").textContent="Could not load the library data.";$("#view").innerHTML='<div class="empty" style="margin-top:28px">Could not load the library. Refresh the page.</div>';}
+})();
+</script>
+
+</body></html>
