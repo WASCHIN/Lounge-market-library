@@ -13,7 +13,7 @@ title=re.search(r"<title>.*?</title>",s).group(0); s=s.replace(title,"",1)
 # replace the claude runtime boot with a static fetch
 start=s.index("(async()=>{\n  const db=window.claude"); end=s.index("})();",start)+5
 boot='''(async()=>{
-  try{const r=await fetch("data.json",{cache:"no-store"});const d=await r.json();
+  try{const d=JSON.parse(document.getElementById("libdata").textContent);
     S.cafes=d.cafes;S.frameworks=d.meta.frameworks?.list||[];S.insights=d.meta.insights?.list||[];S.canvas=d.meta.canvas||null;S.compare=d.meta.compare||null;
     const n=Object.keys(S.cafes).length;$("#sync").innerHTML=`<b>${n} cafes</b> · updated ${esc(d.updated||"")}`;
     const h=(location.hash||"").replace("#","");S.route=S.cafes[h]?h:"compare";render(true);
@@ -33,6 +33,9 @@ html=f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="
 </head><body>
 {s}
 </body></html>'''
+d3=json.load(open(OUT+"/data.json"));import datetime;d3["updated"]=datetime.date.today().strftime("%d %b %Y")
+emb=json.dumps(d3,ensure_ascii=False,separators=(",",":")).replace("</","<\\/")
+html=html.replace("</head><body>\n",'</head><body>\n<script id="libdata" type="application/json">'+emb+'</script>\n',1)
 open(OUT+"/index.html","w").write(html)
 open(OUT+".nojekyll","w").close() if False else open(OUT+"/.nojekyll","w").close()
 d2=json.load(open(OUT+"/data.json"));import datetime;d2["updated"]=datetime.date.today().strftime("%d %b %Y");json.dump(d2,open(OUT+"/data.json","w"),ensure_ascii=False,separators=(",",":"))
